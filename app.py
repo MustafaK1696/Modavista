@@ -1,20 +1,17 @@
-from flask import Flask, send_from_directory, send_file
-import os
+import streamlit as st
+import streamlit.components.v1 as components
+from pathlib import Path
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+st.set_page_config(page_title="Uygulama", layout="wide")
 
-# Ana sayfa
-@app.route('/')
-def index():
-    return send_file('index.html')
+BASE = Path(__file__).parent
+html_path = BASE / "index.html"
 
-# JS / CSS / diğer dosyalar
-@app.route('/<path:path>')
-def static_proxy(path):
-    file_path = os.path.join('.', path)
-    if os.path.exists(file_path):
-        return send_from_directory('.', path)
-    return 'Not Found', 404
+# index.html içeriğini aynen göm
+html = html_path.read_text(encoding="utf-8")
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8501, debug=True)
+# Not: index.html içinde referans verilen js/css dosyaları aynı klasörde olmalı:
+# index-BF5fFsDi.js
+# index-UyH8M1lL.css
+
+components.html(html, height=900, scrolling=True)
