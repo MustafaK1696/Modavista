@@ -2,16 +2,30 @@ import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
 
-st.set_page_config(page_title="Uygulama", layout="wide")
+st.set_page_config(page_title="MODAVISTA", layout="wide")
 
 BASE = Path(__file__).parent
-html_path = BASE / "index.html"
 
-# index.html içeriğini aynen göm
-html = html_path.read_text(encoding="utf-8")
+JS_FILE = BASE / "index-BF5fFsDi.js"
+CSS_FILE = BASE / "index-UyH8M1lL.css"
 
-# Not: index.html içinde referans verilen js/css dosyaları aynı klasörde olmalı:
-# index-BF5fFsDi.js
-# index-UyH8M1lL.css
+missing = [p.name for p in (JS_FILE, CSS_FILE) if not p.exists()]
+if missing:
+    st.error("Eksik dosyalar: " + ", ".join(missing))
+    st.write("Bu klasörde görünen dosyalar:")
+    for p in sorted(BASE.iterdir()):
+        st.write("-", p.name)
+    st.stop()
 
-components.html(html, height=900, scrolling=True)
+js = JS_FILE.read_text(encoding="utf-8", errors="ignore")
+css = CSS_FILE.read_text(encoding="utf-8", errors="ignore")
+
+# React/Vite build'in çalışması için root div yeterli.
+# JS'i root'tan sonra koyuyoruz ki mount edebilsin.
+html = f"""
+<div id="root"></div>
+<style>{css}</style>
+<script>{js}</script>
+"""
+
+components.html(html, height=1000, scrolling=True)
